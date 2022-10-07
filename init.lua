@@ -26,9 +26,10 @@ local config = {
   },
 
   -- Set colorscheme to use
-  colorscheme = "default_theme",
-  -- colorscheme = "catppuccin",
-
+--  colorscheme = "default_theme",
+  -- colorscheme = "dracula",
+   colorscheme = "catppuccin",
+  -- colorscheme = "ayu",
   -- Override highlight groups in any theme
   highlights = {
     -- duskfox = { -- a table of overrides/changes to the default
@@ -50,6 +51,7 @@ local config = {
     g = {
       mapleader = " ", -- sets vim.g.mapleader
       catppuccin_flavour = "macchiato",
+      ayucolor = "light",
     },
   },
   -- If you need more control, you can use the function()...end notation
@@ -165,6 +167,9 @@ local config = {
       gopls = { -- override table for require("lspconfig").gopls.setup({...})
         on_attach = function(client, _) client.resolved_capabilities.document_formatting = false end,
       },
+      rust_analyzer = {
+        on_attach = function(client, _) client.resolved_capabilities.document_formatting = false end,
+      },
     },
   },
 
@@ -188,7 +193,7 @@ local config = {
     t = {
       -- setting a mapping to false will disable it
       -- ["<esc>"] = false,
-      ["jj"] = { "<C-\\><C-n>", desc = "Terminal normal mode" },
+      -- ["jj"] = { "<C-\\><C-n>", desc = "Terminal normal mode" },
     },
   },
 
@@ -197,7 +202,7 @@ local config = {
     init = {
       -- You can disable default plugins as follows:
       -- ["goolord/alpha-nvim"] = { disable = true },
-
+      ["declancm/cinnamon.nvim"] = { disable = true },
       -- You can also add new plugins here as well:
       -- Add plugins, the packer syntax without the "use"
       -- { "andweeb/presence.nvim" },
@@ -208,6 +213,7 @@ local config = {
       --     require("lsp_signature").setup()
       --   end,
       -- },
+      { "ayu-theme/ayu-vim" },
 
       -- We also support a key value style plugin definition similar to NvChad:
       -- ["ray-x/lsp_signature.nvim"] = {
@@ -221,7 +227,7 @@ local config = {
         as = "catppuccin",
         config = function() require("catppuccin").setup {} end,
       },
-      { "flazz/vim-colorschemes" },
+      { "Mofiqul/dracula.nvim" },
     },
     -- All other entries override the require("<key>").setup({...}) call for default plugins
     ["null-ls"] = function(config) -- overrides `require("null-ls").setup(config)`
@@ -236,6 +242,7 @@ local config = {
         null_ls.builtins.formatting.prettier,
         null_ls.builtins.formatting.gofumpt,
         null_ls.builtins.formatting.goimports,
+        null_ls.builtins.formatting.rustfmt,
       }
       -- set up null-ls's on_attach function
       -- NOTE: You can remove this on attach function to disable format on save
