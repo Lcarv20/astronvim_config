@@ -26,43 +26,32 @@ local config = {
   },
 
   -- Set colorscheme to use
-  -- Set colorscheme to use
-  -- colorscheme = "default_theme",
-  colorscheme = "dracula",
-  -- colorscheme = "catppuccin",
+--  colorscheme = "default_theme",
+  -- colorscheme = "dracula",
+   colorscheme = "catppuccin",
   -- colorscheme = "ayu",
-
-  -- Add highlight groups in any theme
+  -- Override highlight groups in any theme
   highlights = {
-    -- init = { -- this table overrides highlights in all themes
-    --   Normal = { bg = "#000000" },
-    -- }
-    -- duskfox = { -- a table of overrides/changes to the duskfox theme
+    -- duskfox = { -- a table of overrides/changes to the default
     --   Normal = { bg = "#000000" },
     -- },
+    default_theme = function(highlights) -- or a function that returns a new table of colors to set
+      local C = require "default_theme.colors"
+
+      highlights.Normal = { fg = C.fg, bg = C.bg }
+      return highlights
+    end,
   },
 
   -- set vim options here (vim.<first_key>.<second_key> =  value)
   options = {
     opt = {
-      -- set to true or false etc.
       relativenumber = true, -- sets vim.opt.relativenumber
-      number = true, -- sets vim.opt.number
-      spell = true, -- sets vim.opt.spell
-      signcolumn = "auto", -- sets vim.opt.signcolumn to auto
-      wrap = false, -- sets vim.opt.wrap
-      scrolloff = 15,
-      colorcolumn = "100",
-      clipboard = "",
     },
     g = {
       mapleader = " ", -- sets vim.g.mapleader
-      cmp_enabled = true, -- enable completion at start
-      autopairs_enabled = true, -- enable autopairs at start
-      diagnostics_enabled = true, -- enable diagnostics at start
-      status_diagnostics_enabled = true, -- enable diagnostics in statusline
       catppuccin_flavour = "macchiato",
-      ayucolor = "mirage",
+      ayucolor = "light",
     },
   },
   -- If you need more control, you can use the function()...end notation
@@ -92,29 +81,18 @@ local config = {
 
   -- Default theme configuration
   default_theme = {
+    -- set the highlight style for diagnostic messages
+    diagnostics_style = { italic = true },
     -- Modify the color palette for the default theme
     colors = {
       fg = "#abb2bf",
       bg = "#1e222a",
     },
-    highlights = function(hl) -- or a function that returns a new table of colors to set
-      local C = require "default_theme.colors"
-
-      hl.Normal = { fg = C.fg, bg = C.bg }
-
-      -- New approach instead of diagnostic_style
-      hl.DiagnosticError.italic = true
-      hl.DiagnosticHint.italic = true
-      hl.DiagnosticInfo.italic = true
-      hl.DiagnosticWarn.italic = true
-
-      return hl
-    end,
     -- enable or disable highlighting for extra plugins
     plugins = {
       aerial = true,
       beacon = false,
-      bufferline = true,
+      bufferline = false,
       dashboard = true,
       highlighturl = true,
       hop = false,
@@ -132,7 +110,7 @@ local config = {
     },
   },
 
-  -- Diagnostics configuration (for vim.diagnostics.config({...})) when diagnostics are on
+  -- Diagnostics configuration (for vim.diagnostics.config({...}))
   diagnostics = {
     virtual_text = true,
     underline = true,
@@ -143,15 +121,7 @@ local config = {
     -- enable servers that you already have installed without mason
     servers = {
       -- "pyright"
-    },
-    formatting = {
-      format_on_save = true, -- enable or disable auto formatting on save
-      disabled = { -- disable formatting capabilities for the listed clients
-        -- "sumneko_lua",
-      },
-      -- filter = function(client) -- fully override the default formatting function
-      --   return true
-      -- end
+      -- "gopls",
     },
     -- easily add or disable built in mappings added during LSP attaching
     mappings = {
@@ -170,6 +140,17 @@ local config = {
 
     -- Add overrides for LSP server settings, the keys are the name of the server
     ["server-settings"] = {
+      -- gopls = { -- for gopls lspconfig setup call
+      --   -- don't need to configure filetype or cmd because installer sets that up automatically
+      --   settings = {
+      --     gopls = {
+      --       analyses = {
+      --         unusedparams = true,
+      --       },
+      --       staticcheck = true,
+      --     },
+      --   },
+      -- },
       -- example for addings schemas to yamlls
       -- yamlls = { -- override table for require("lspconfig").yamlls.setup({...})
       --   settings = {
@@ -182,6 +163,13 @@ local config = {
       --     },
       --   },
       -- },
+      -- Example disabling formatting for a specific language server
+      gopls = { -- override table for require("lspconfig").gopls.setup({...})
+        on_attach = function(client, _) client.resolved_capabilities.document_formatting = false end,
+      },
+      rust_analyzer = {
+        on_attach = function(client, _) client.resolved_capabilities.document_formatting = false end,
+      },
     },
   },
 
@@ -201,23 +189,12 @@ local config = {
       ["<leader>bt"] = { "<cmd>BufferLineSortByTabs<cr>", desc = "Sort by tabs" },
       -- quick save
       -- ["<C-s>"] = { ":w!<cr>", desc = "Save File" },  -- change description but the same command
-      ["<leader>y"] = { '"+y', desc = "Copy to clipboard" },
-      ["<leader>d"] = { '"_d', desc = "Delete without storing to clipboard" },
-      ["<leader>D"] = { "<cmd>Alpha<cr>", desc = "Alpha Dashboard" },
     },
     t = {
       -- setting a mapping to false will disable it
       -- ["<esc>"] = false,
+      -- ["jj"] = { "<C-\\><C-n>", desc = "Terminal normal mode" },
     },
-    v = {
-      ["<leader>y"] = { '"+y', desc = "Copy to clipboard" },
-      ["<leader>d"] = { '"_d', desc = "Delete without storing to clipboard" },
-    },
-  },
-
-  -- add new user interface icon
-  icons = {
-    VimIcon = "",
   },
 
   -- Configure plugins
@@ -225,7 +202,7 @@ local config = {
     init = {
       -- You can disable default plugins as follows:
       -- ["goolord/alpha-nvim"] = { disable = true },
-
+      ["declancm/cinnamon.nvim"] = { disable = true },
       -- You can also add new plugins here as well:
       -- Add plugins, the packer syntax without the "use"
       -- { "andweeb/presence.nvim" },
@@ -236,6 +213,7 @@ local config = {
       --     require("lsp_signature").setup()
       --   end,
       -- },
+      { "ayu-theme/ayu-vim" },
 
       -- We also support a key value style plugin definition similar to NvChad:
       -- ["ray-x/lsp_signature.nvim"] = {
@@ -244,89 +222,76 @@ local config = {
       --     require("lsp_signature").setup()
       --   end,
       -- },
-
       {
         "catppuccin/nvim",
         as = "catppuccin",
         config = function() require("catppuccin").setup {} end,
       },
       { "Mofiqul/dracula.nvim" },
-      { "ayu-theme/ayu-vim" },
     },
-    heirline = function(config)
-      -- the first element of the default configuration table is the statusline
-      config[1] = {
-        -- set the fg/bg of the statusline
-        hl = { fg = "fg", bg = "bg" },
-        -- when adding the mode component, enable the mode text with padding to the left/right of it
-        -- astronvim.status.component.mode { mode_text = { padding = { left = 1, right = 1 } } },
-        -- add the vim mode component
-        astronvim.status.component.mode {
-          -- enable mode text with padding as well as an icon before it
-          mode_text = {
-            icon = { kind = "VimIcon", padding = { right = 1, left = 1 } },
-            padding = { left = 1, right = 1 },
-          },
-        },
-        -- add all the other components for the statusline
-        astronvim.status.component.git_branch(),
-        astronvim.status.component.file_info(),
-        astronvim.status.component.git_diff(),
-        astronvim.status.component.diagnostics(),
-        astronvim.status.component.fill(),
-        astronvim.status.component.lsp(),
-        astronvim.status.component.treesitter(),
-        astronvim.status.component.nav(),
-      }
-      -- return the final configuration table
-      return config
-    end,
     -- All other entries override the require("<key>").setup({...}) call for default plugins
     ["null-ls"] = function(config) -- overrides `require("null-ls").setup(config)`
       -- config variable is the default configuration table for the setup functino call
-      -- local null_ls = require "null-ls"
-
+      local null_ls = require "null-ls"
       -- Check supported formatters and linters
       -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/formatting
       -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/diagnostics
       config.sources = {
         -- Set a formatter
-        -- null_ls.builtins.formatting.stylua,
-        -- null_ls.builtins.formatting.prettier,
+        null_ls.builtins.formatting.stylua,
+        null_ls.builtins.formatting.prettier,
+        null_ls.builtins.formatting.gofumpt,
+        null_ls.builtins.formatting.goimports,
+        null_ls.builtins.formatting.rustfmt,
       }
-      return config -- return final config table
+      -- set up null-ls's on_attach function
+      -- NOTE: You can remove this on attach function to disable format on save
+      config.on_attach = function(client)
+        if client.resolved_capabilities.document_formatting then
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            desc = "Auto format before save",
+            pattern = "<buffer>",
+            callback = vim.lsp.buf.formatting_sync,
+          })
+        end
+      end
+      return config -- return final config table to use in require("null-ls").setup(config)
     end,
     treesitter = { -- overrides `require("treesitter").setup(...)`
-      ensure_installed = {
-        "lua",
-        "javascript",
-        "typescript",
-        "tsx",
-        "go",
-        "gomod",
-        "json",
-        "jsdoc",
-        "astro",
-        "svelte",
-        "rust",
-      },
+      ensure_installed = { "lua" },
     },
     -- use mason-lspconfig to configure LSP installations
     ["mason-lspconfig"] = { -- overrides `require("mason-lspconfig").setup(...)`
       ensure_installed = {
-        -- "sumneko_lua",
-        -- "gopls",
-        -- "lua-language-server",
-        -- "tailwind-language-server",
-        -- "typescript-language-server",
-        -- "eslint-lsp",
-        -- "rust-analyzer",
-        -- "svelte-language-server"
+        "sumneko_lua",
+        "gopls",
       },
     },
-    -- use mason-null-ls to configure Formatters/Linter installation for null-ls sources
-    ["mason-null-ls"] = { -- overrides `require("mason-null-ls").setup(...)`
-      -- ensure_installed = { "prettier", "stylua" },
+    -- use mason-tool-installer to configure DAP/Formatters/Linter installation
+    ["mason-tool-installer"] = { -- overrides `require("mason-tool-installer").setup(...)`
+      ensure_installed = {
+        "prettier",
+        "stylua",
+        "gofumpt",
+        "goimports",
+      },
+    },
+    packer = { -- overrides `require("packer").setup(...)`
+      compile_path = vim.fn.stdpath "data" .. "/packer_compiled.lua",
+    },
+    bufferline = { -- override bufferline configuration
+      options = {
+        separator_style = "thick",
+        diagnostics = "nvim_lsp",
+        diagnostics_indicator = function(_, _, diagnostics_dict, _)
+          local s = " "
+          for e, n in pairs(diagnostics_dict) do
+            local sym = e == "error" and " " or (e == "warning" and " " or "")
+            s = s .. n .. sym
+          end
+          return s
+        end,
+      },
     },
   },
 
@@ -336,7 +301,7 @@ local config = {
     vscode_snippet_paths = {},
     -- Extend filetypes
     filetype_extend = {
-      -- javascript = { "javascriptreact" },
+      javascript = { "javascriptreact" },
     },
   },
 
@@ -358,7 +323,7 @@ local config = {
   -- Modify which-key registration (Use this with mappings table in the above.)
   ["which-key"] = {
     -- Add bindings which show up as group name
-    register = {
+    register_mappings = {
       -- first key is the mode, n == normal mode
       n = {
         -- second key is the prefix, <leader> prefixes
@@ -375,6 +340,16 @@ local config = {
   -- augroups/autocommands and custom filetypes also this just pure lua so
   -- anything that doesn't fit in the normal config locations above can go here
   polish = function()
+    -- Set key binding
+    -- Set autocommands
+    vim.api.nvim_create_augroup("packer_conf", { clear = true })
+    vim.api.nvim_create_autocmd("BufWritePost", {
+      desc = "Sync packer after modifying plugins.lua",
+      group = "packer_conf",
+      pattern = "plugins.lua",
+      command = "source <afile> | PackerSync",
+    })
+
     -- Set up custom filetypes
     -- vim.filetype.add {
     --   extension = {
@@ -386,27 +361,7 @@ local config = {
     --   pattern = {
     --     ["~/%.config/foo/.*"] = "fooscript",
     --   },
-
-    -- Yank time by primeagen
-    -- local augroup = vim.api.nvim_create_augroup
-    -- LcarGroup = augroup("LcarvGroup", {})
-    -- local autocmd = vim.api.nvim_create_autocmd
-    -- local yank_group = augroup("HighlighYank", {})
-    --
-    -- function R(name)
-    --   require("plenary.reload").reload_module(name)
-    -- end
-    --
-    -- autocmd("TextYankPost", {
-    --   group = yank_group,
-    --   pattern = "*",
-    --   callback = function()
-    --     vim.highlight.on_yank({
-    --       highgroup = "IncSeacrh",
-    --       timeout = 40,
-    --     })
-    --   end,
-    -- })
+    -- }
   end,
 }
 
