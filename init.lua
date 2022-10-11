@@ -27,8 +27,8 @@ local config = {
 
   -- Set colorscheme to use
   -- Set colorscheme to use
-  -- colorscheme = "default_theme",
-  colorscheme = "dracula",
+  colorscheme = "default_theme",
+  -- colorscheme = "dracula",
   -- colorscheme = "catppuccin",
   -- colorscheme = "ayu",
 
@@ -301,6 +301,8 @@ local config = {
         "lua",
         "javascript",
         "typescript",
+        "html",
+        "css",
         "tsx",
         "go",
         "gomod",
@@ -327,6 +329,13 @@ local config = {
     -- use mason-null-ls to configure Formatters/Linter installation for null-ls sources
     ["mason-null-ls"] = { -- overrides `require("mason-null-ls").setup(...)`
       -- ensure_installed = { "prettier", "stylua" },
+    },
+    ["neo-tree"] = {
+      filesystem = {
+        filtered_items = {
+          hide_gitignored = false,
+        },
+      },
     },
   },
 

@@ -16,6 +16,8 @@ export function App() {
         </a>
       </div>
       <h1>Vite + Preact</h1>
+      <div>Luís Carvalho</div>
+      <h1>I like this font actually quite a lot!</h1>
       <div class="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
